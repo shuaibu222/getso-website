@@ -1,44 +1,68 @@
-// Enhanced Mobile Navigation
 document.addEventListener('DOMContentLoaded', function () {
+    // Mobile Navigation Toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle')
-    const mainNav = document.querySelector('.main-nav')
-    const navLinks = document.querySelectorAll('.nav-links li a')
+    const navLinks = document.querySelector('.nav-links')
 
-    // Toggle mobile menu
     mobileMenuToggle.addEventListener('click', function () {
-        mainNav.classList.toggle('active')
+        navLinks.classList.toggle('active')
         this.querySelector('i').classList.toggle('fa-bars')
         this.querySelector('i').classList.toggle('fa-times')
     })
 
     // Close mobile menu when a link is clicked
-    navLinks.forEach(link => {
+    document.querySelectorAll('.nav-links li a').forEach(link => {
         link.addEventListener('click', function () {
-            if (window.innerWidth <= 992) {
-                mainNav.classList.remove('active')
+            if (window.innerWidth <= 768) {
+                navLinks.classList.remove('active')
                 mobileMenuToggle.querySelector('i').classList.add('fa-bars')
                 mobileMenuToggle.querySelector('i').classList.remove('fa-times')
             }
         })
     })
 
-    // Close menu when clicking outside
-    document.addEventListener('click', function (e) {
-        if (!mainNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
-            mainNav.classList.remove('active')
-            mobileMenuToggle.querySelector('i').classList.add('fa-bars')
-            mobileMenuToggle.querySelector('i').classList.remove('fa-times')
+    // Theme Toggle with Enhanced Logic
+    const themeToggle = document.getElementById('themeToggle')
+    const themeIcon = themeToggle.querySelector('i')
+
+    // Initialize theme
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme')
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.body.classList.add('dark-mode')
+            themeIcon.classList.remove('fa-moon')
+            themeIcon.classList.add('fa-sun')
+        } else {
+            document.body.classList.remove('dark-mode')
+            themeIcon.classList.remove('fa-sun')
+            themeIcon.classList.add('fa-moon')
+        }
+    }
+
+    // Toggle theme
+    themeToggle.addEventListener('click', function () {
+        const isDark = document.body.classList.toggle('dark-mode')
+
+        if (isDark) {
+            localStorage.setItem('theme', 'dark')
+            themeIcon.classList.remove('fa-moon')
+            themeIcon.classList.add('fa-sun')
+        } else {
+            localStorage.setItem('theme', 'light')
+            themeIcon.classList.remove('fa-sun')
+            themeIcon.classList.add('fa-moon')
         }
     })
 
-    // Language switcher functionality
-    const languageButtons = document.querySelectorAll('.language-switcher button')
-    languageButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            languageButtons.forEach(btn => btn.classList.remove('active'))
-            this.classList.add('active')
-            // Here you would add logic to change the language
-        })
+    // Header scroll effect
+    const header = document.querySelector('header')
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled')
+        } else {
+            header.classList.remove('scrolled')
+        }
     })
 
     // Lecture tabs functionality
@@ -47,14 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     tabButtons.forEach(button => {
         button.addEventListener('click', function () {
-            // Remove active class from all buttons
             tabButtons.forEach(btn => btn.classList.remove('active'))
-            // Add active class to clicked button
             this.classList.add('active')
 
             const category = this.getAttribute('data-category')
 
-            // Filter lecture cards
             lectureCards.forEach(card => {
                 if (category === 'all' || card.getAttribute('data-category') === category) {
                     card.style.display = 'block'
@@ -82,34 +103,22 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     })
 
-    // Add animation to elements when they come into view
-    const animateOnScroll = function () {
-        const elements = document.querySelectorAll(
-            '.bio-content, .book-card, .lecture-card, .article-card'
-        )
+    // Enhanced fade-in animation on scroll
+    const fadeElements = document.querySelectorAll('.fade-in')
 
-        elements.forEach(element => {
-            const elementPosition = element.getBoundingClientRect().top
-            const windowHeight = window.innerHeight
+    const fadeInOnScroll = function () {
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top
+            const elementVisible = 150
 
-            if (elementPosition < windowHeight - 100) {
-                element.style.opacity = '1'
-                element.style.transform = 'translateY(0)'
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible')
             }
         })
     }
 
-    // Set initial state for animation
-    const animatedElements = document.querySelectorAll(
-        '.bio-content, .book-card, .lecture-card, .article-card'
-    )
-    animatedElements.forEach(element => {
-        element.style.opacity = '0'
-        element.style.transform = 'translateY(20px)'
-        element.style.transition = 'opacity 0.5s ease, transform 0.5s ease'
-    })
-
-    // Run on load and scroll
-    animateOnScroll()
-    window.addEventListener('scroll', animateOnScroll)
+    // Initialize
+    initTheme()
+    fadeInOnScroll()
+    window.addEventListener('scroll', fadeInOnScroll)
 })
