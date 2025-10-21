@@ -15,6 +15,61 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="styles.css" />
+        <script>
+            // === CONFIGURATION ===
+            const API_KEY = 'AIzaSyB-b3LxIir-BqJ1yOLvXghqWsoaou8WSVA' // ← replace
+            const FOLDER_ID = '154FS7VVzwGpEwFlVyECjLtktGJHvaFQK'
+
+            // === FETCH BOOKS FROM GOOGLE DRIVE ===
+            fetch(
+                `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webViewLink,webContentLink,thumbnailLink)`
+            )
+                .then(res => res.json())
+                .then(data => {
+                    const grid = document.getElementById('books-grid')
+                    grid.innerHTML = '' // Clear the loading text
+
+                    if (!data.files || data.files.length === 0) {
+                        grid.innerHTML = '<p>Babu littafi a halin yanzu.</p>'
+                        return
+                    }
+
+                    data.files.forEach(file => {
+                        // Skip folders only
+                        if (file.mimeType === 'application/vnd.google-apps.folder') return
+                        console.log(file)
+
+                        const thumbnail = file.thumbnailLink || 'img/getso-2.jpg'
+                        // Update this part in your JavaScript
+                        const card = document.createElement('div')
+                        card.className = 'book-card'
+                        card.innerHTML = `
+                                    <div class="book-cover">
+                                        <img src="${thumbnail}" alt="${
+                            file.name
+                        }" onerror="this.src='img/getso-2.jpg'" />
+                                    </div>
+                                    <div class="book-info">
+                                        <h3>${file.name.replace(/\.[^/.]+$/, '')}</h3>
+                                        <div class="book-actions">
+                                            <a href="${
+                                                file.webViewLink
+                                            }" target="_blank" class="btn-outline">Duba</a>
+                                            <a href="${
+                                                file.webContentLink
+                                            }" target="_blank" class="btn-outline">Sauke</a>
+                                        </div>
+                                    </div>
+                                `
+                        grid.appendChild(card)
+                    })
+                })
+                .catch(err => {
+                    console.error('Drive API error:', err)
+                    document.getElementById('books-grid').innerHTML =
+                        '<p>Ba a loda littattafai ba.</p>'
+                })
+        </script>
     </head>
     <body>
         <header>
@@ -48,10 +103,6 @@
         </header>
 
         <main>
-            <!-- Rest of the HTML content remains exactly the same as in the previous version -->
-            <!-- Including hero, biography, books, lectures, articles, and contact sections -->
-            <!-- The content structure is identical, only styling has been enhanced -->
-
             <section id="home" class="hero">
                 <div class="container hero-container">
                     <div class="hero-content">
@@ -112,50 +163,8 @@
             <section id="books" class="books">
                 <div class="container">
                     <h2>Littattafansa</h2>
-                    <div class="books-grid">
-                        <div class="book-card fade-in">
-                            <div class="book-cover">
-                                <img src="img/getso-2.jpg" alt="Al-Mu'in" />
-                            </div>
-                            <div class="book-info">
-                                <h3>Al-Mu'in fi Dirasa Usul al-Iman</h3>
-                                <p>Nazarin tusubin imani a Musulunci</p>
-                                <a href="#" class="btn btn-outline">Duba</a>
-                            </div>
-                        </div>
-                        <div class="book-card fade-in">
-                            <div class="book-cover">
-                                <img src="img/getso-2.jpg" alt="Al-Mufid" />
-                            </div>
-                            <div class="book-info">
-                                <h3>Al-Mufid fi Dirasa Usul al-Iman</h3>
-                                <p>Nazarin tusubin imani (Larabci da Turanci)</p>
-                                <a href="#" class="btn btn-outline">Duba</a>
-                            </div>
-                        </div>
-                        <div class="book-card fade-in">
-                            <div class="book-cover">
-                                <img src="img/getso-2.jpg" alt="Gamewar Da" />
-                            </div>
-                            <div class="book-info">
-                                <h3>Gamewar Da, Awar Asshekh Abubakar Mahmud Gumi</h3>
-                                <p>Nazarin rayuwar Sheikh Abubakar Mahmud Gumi</p>
-                                <a href="#" class="btn btn-outline">Duba</a>
-                            </div>
-                        </div>
-                        <div class="book-card fade-in">
-                            <div class="book-cover">
-                                <img src="img/getso-2.jpg" alt="Tafarkin Magabata" />
-                            </div>
-                            <div class="book-info">
-                                <h3>Tafarkin Magabata na Kwarai</h3>
-                                <p>Jagora ga ɗabi'u nagari</p>
-                                <a href="#" class="btn btn-outline">Duba</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="view-all">
-                        <a href="#" class="btn">Duba Dukkan Littattafai</a>
+                    <div id="books-grid" class="books-grid">
+                        <p>Loading littattafai …</p>
                     </div>
                 </div>
             </section>
